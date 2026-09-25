@@ -1,0 +1,21 @@
+{
+  "name": "support-ticket-system",
+  "version": "1.0.0",
+  "description": "Full-Stack Support Ticket Management System - Technical Assessment",
+  "scripts": {
+    "test": "npm --prefix backend test",
+    "seed": "npm --prefix backend run seed",
+    "backend": "npm --prefix backend start",
+    "frontend": "npm --prefix frontend run dev"
+  },
+  "keywords": [
+    "react",
+    "express",
+    "mysql",
+    "jwt",
+    "support-tickets",
+    "technical-assessment"
+  ],
+  "author": "",
+  "license": "ISC"
+}
