@@ -14,10 +14,10 @@ A full-stack web-based **Support Ticket Management System** built for technical 
 
 ## 🌐 Live Deployed Application URLs
 
-- **Primary Live Public Application**: [https://9add2984a2613f.lhr.life](https://9add2984a2613f.lhr.life)
+- **Primary Live Public Application**: [https://57e44ac5ea42f61f-103-160-27-12.serveousercontent.com](https://57e44ac5ea42f61f-103-160-27-12.serveousercontent.com)
 - **Alternative Mirror (Localtunnel)**: [https://all-walls-leave.loca.lt](https://all-walls-leave.loca.lt)
-- **Live Health & Service Check**: [https://9add2984a2613f.lhr.life/api/health](https://9add2984a2613f.lhr.life/api/health)
-- **Requirement 8 Live SQL Query Endpoint**: [https://9add2984a2613f.lhr.life/api/example-query](https://9add2984a2613f.lhr.life/api/example-query)
+- **Live Health & Service Check**: [https://57e44ac5ea42f61f-103-160-27-12.serveousercontent.com/api/health](https://57e44ac5ea42f61f-103-160-27-12.serveousercontent.com/api/health)
+- **Requirement 8 Live SQL Query Endpoint**: [https://57e44ac5ea42f61f-103-160-27-12.serveousercontent.com/api/example-query](https://57e44ac5ea42f61f-103-160-27-12.serveousercontent.com/api/example-query)
 
 ---
 
