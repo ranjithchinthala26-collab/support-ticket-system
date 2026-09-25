@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 const authRoutes = require('./routes/authRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -63,13 +65,25 @@ app.get('/api/example-query', async (req, res) => {
   }
 });
 
-// Mount Routes
+// Mount API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/users', userRoutes);
 
-// 404 Route Handler
-app.use((req, res) => {
+// Serve Static Frontend if built
+const frontendDist = path.join(__dirname, '../../frontend/dist');
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+}
+
+// 404 Route Handler for undefined API routes
+app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
     message: `Resource not found: ${req.method} ${req.originalUrl}`
