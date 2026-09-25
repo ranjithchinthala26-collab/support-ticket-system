@@ -1,0 +1,441 @@
+{
+  "info": {
+    "_postman_id": "8c59f0f1-4db3-4318-97c2-9e8d47b52041",
+    "name": "Support Ticket Management System API",
+    "description": "Comprehensive API collection for the Support Ticket Management System technical assessment. Covers authentication, customer & agent workflows, RBAC tests, input validation, and requirement 8 query verification.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "customerToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "agentToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ticketId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Customer Registration - Success",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sarah Connor\",\n  \"email\": \"sarah.connor@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test(\"Token returned\", function () {",
+                  "    pm.expect(jsonData.token).to.not.be.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Customer Login - Success",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"customer@demo.com\",\n  \"password\": \"Customer123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set(\"customerToken\", jsonData.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agent Login - Success",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"agent@support.com\",\n  \"password\": \"Agent123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set(\"agentToken\", jsonData.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid Login - Wrong Password (401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"customer@demo.com\",\n  \"password\": \"WrongPassword123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Authenticated Profile (GET /me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Customer Ticket Flow",
+      "item": [
+        {
+          "name": "Create New Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"Cannot download monthly invoice PDF\",\n  \"description\": \"Clicking the Download Invoice button returns a blank page instead of the PDF document.\",\n  \"priority\": \"high\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/tickets", "host": ["{{baseUrl}}"], "path": ["tickets"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.ticket && jsonData.ticket.id) {",
+                  "    pm.collectionVariables.set(\"ticketId\", jsonData.ticket.id.toString());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Customer's Tickets",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/tickets", "host": ["{{baseUrl}}"], "path": ["tickets"] }
+          }
+        },
+        {
+          "name": "Get Ticket Details by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/tickets/{{ticketId}}", "host": ["{{baseUrl}}"], "path": ["tickets", "{{ticketId}}"] }
+          }
+        },
+        {
+          "name": "Add Customer Comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"Any update on this? It is blocking our accounting department.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/tickets/{{ticketId}}/comments", "host": ["{{baseUrl}}"], "path": ["tickets", "{{ticketId}}", "comments"] }
+          }
+        },
+        {
+          "name": "Get Ticket Comments",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/tickets/{{ticketId}}/comments", "host": ["{{baseUrl}}"], "path": ["tickets", "{{ticketId}}", "comments"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Support Agent Flow",
+      "item": [
+        {
+          "name": "Get All Tickets (Agent View)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{agentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tickets?status=open&sortBy=created_at&sortOrder=DESC",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets"],
+              "query": [
+                { "key": "status", "value": "open" },
+                { "key": "sortBy", "value": "created_at" },
+                { "key": "sortOrder", "value": "DESC" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Ticket Status, Priority & Assignment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{agentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in_progress\",\n  \"priority\": \"urgent\",\n  \"assigned_to\": 3\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/tickets/{{ticketId}}", "host": ["{{baseUrl}}"], "path": ["tickets", "{{ticketId}}"] }
+          }
+        },
+        {
+          "name": "Add Agent Response Comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{agentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"Hello! We have reproduced the issue and our PDF rendering patch is being deployed now.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/tickets/{{ticketId}}/comments", "host": ["{{baseUrl}}"], "path": ["tickets", "{{ticketId}}", "comments"] }
+          }
+        },
+        {
+          "name": "Get Agent Dashboard Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{agentToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/tickets/stats/summary", "host": ["{{baseUrl}}"], "path": ["tickets", "stats", "summary"] }
+          }
+        },
+        {
+          "name": "Get Support Agents List",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{agentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users?role=agent",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [{ "key": "role", "value": "agent" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Security & Negative Tests",
+      "item": [
+        {
+          "name": "Unauthorized API Request (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/tickets", "host": ["{{baseUrl}}"], "path": ["tickets"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Forbidden Request for Incorrect Role (403)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/tickets/stats/summary", "host": ["{{baseUrl}}"], "path": ["tickets", "stats", "summary"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid Input - Short Subject (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"ab\",\n  \"description\": \"Valid long description here\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/tickets", "host": ["{{baseUrl}}"], "path": ["tickets"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Not-Found Ticket (404)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{agentToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/tickets/999999", "host": ["{{baseUrl}}"], "path": ["tickets", "999999"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404 Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Requirement 8 Query Demo",
+      "item": [
+        {
+          "name": "Open Tickets JOIN Customer Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/example-query", "host": ["{{baseUrl}}"], "path": ["example-query"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test(\"Returns open tickets with customer join\", function () {",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
