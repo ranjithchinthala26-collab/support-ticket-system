@@ -14,9 +14,9 @@ A full-stack web-based **Support Ticket Management System** built for technical 
 
 ## 🌐 Live Deployed Application URLs
 
-- **Primary Live Public Application**: [https://bc38bde6780851.lhr.life](https://bc38bde6780851.lhr.life)
-- **Live Health & Service Check**: [https://bc38bde6780851.lhr.life/api/health](https://bc38bde6780851.lhr.life/api/health)
-- **Requirement 8 Live SQL Query Endpoint**: [https://bc38bde6780851.lhr.life/api/example-query](https://bc38bde6780851.lhr.life/api/example-query)
+- **Primary Live Public Application**: [https://9c6d3e06889d34.lhr.life](https://9c6d3e06889d34.lhr.life)
+- **Live Health & Service Check**: [https://9c6d3e06889d34.lhr.life/api/health](https://9c6d3e06889d34.lhr.life/api/health)
+- **Requirement 8 Live SQL Query Endpoint**: [https://9c6d3e06889d34.lhr.life/api/example-query](https://9c6d3e06889d34.lhr.life/api/example-query)
 
 ---
 
