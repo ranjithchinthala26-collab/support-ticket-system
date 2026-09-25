@@ -14,10 +14,9 @@ A full-stack web-based **Support Ticket Management System** built for technical 
 
 ## 🌐 Live Deployed Application URLs
 
-- **Primary Live Public Application**: [https://5a4dc4e07830f4.lhr.life](https://5a4dc4e07830f4.lhr.life)
-- **Live Health & Service Check**: [https://5a4dc4e07830f4.lhr.life/api/health](https://5a4dc4e07830f4.lhr.life/api/health)
-- **Requirement 8 Live SQL Query Endpoint**: [https://5a4dc4e07830f4.lhr.life/api/example-query](https://5a4dc4e07830f4.lhr.life/api/example-query)
-- **Alternative Mirror (Localtunnel)**: [https://red-forks-dream.loca.lt](https://red-forks-dream.loca.lt) *(Tunnel Password / IP if prompted: `103.160.27.12`)*
+- **Primary Live Public Application**: [https://bc38bde6780851.lhr.life](https://bc38bde6780851.lhr.life)
+- **Live Health & Service Check**: [https://bc38bde6780851.lhr.life/api/health](https://bc38bde6780851.lhr.life/api/health)
+- **Requirement 8 Live SQL Query Endpoint**: [https://bc38bde6780851.lhr.life/api/example-query](https://bc38bde6780851.lhr.life/api/example-query)
 
 ---
 
