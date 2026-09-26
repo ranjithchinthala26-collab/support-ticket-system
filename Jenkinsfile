@@ -8,25 +8,25 @@ pipeline {
                 bat 'java --version'
                 bat 'git --version'
                 bat 'docker --version'
-                bat 'docker compose version'
+                bat 'docker-compose version'
             }
         }
 
         stage('Validate Docker Compose') {
             steps {
-                bat 'docker compose config'
+                bat 'docker-compose config'
             }
         }
 
         stage('Build Docker Images') {
             steps {
-                bat 'docker compose build'
+                bat 'docker-compose build'
             }
         }
 
         stage('Start Application') {
             steps {
-                bat 'docker compose up -d'
+                bat 'docker-compose up -d'
             }
         }
 
