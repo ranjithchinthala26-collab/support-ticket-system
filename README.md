@@ -14,10 +14,10 @@ A full-stack web-based **Support Ticket Management System** built for technical 
 
 ## 🌐 Live Deployed Application URLs
 
-- **Primary Live Public Application (Cloudflare Edge)**: [https://captured-advised-vacuum-nicholas.trycloudflare.com](https://captured-advised-vacuum-nicholas.trycloudflare.com)
-- **Alternative Mirror (Localtunnel)**: [https://all-walls-leave.loca.lt](https://all-walls-leave.loca.lt)
-- **Live Health & Service Check**: [https://captured-advised-vacuum-nicholas.trycloudflare.com/api/health](https://captured-advised-vacuum-nicholas.trycloudflare.com/api/health)
-- **Requirement 8 Live SQL Query Endpoint**: [https://captured-advised-vacuum-nicholas.trycloudflare.com/api/example-query](https://captured-advised-vacuum-nicholas.trycloudflare.com/api/example-query)
+- **Official Live Production Application (Vercel)**: [https://support-ticket-system-puce.vercel.app](https://support-ticket-system-puce.vercel.app)
+- **Live Health & Service Check**: [https://support-ticket-system-puce.vercel.app/api/health](https://support-ticket-system-puce.vercel.app/api/health)
+- **Requirement 8 Live SQL Query Endpoint**: [https://support-ticket-system-puce.vercel.app/api/example-query](https://support-ticket-system-puce.vercel.app/api/example-query)
+- **GitHub Repository**: [https://github.com/ranjithchinthala26-collab/support-ticket-system](https://github.com/ranjithchinthala26-collab/support-ticket-system)
 
 ---
 
@@ -354,8 +354,8 @@ The project includes built-in Vercel Serverless routing via `vercel.json` and `a
 3. Import your GitHub repository (`support-ticket-system`).
 4. Keep the **Root Directory** as `./` (do not change it).
 5. Vercel automatically detects `vercel.json` with:
-   - **Build Command**: `npm --prefix frontend run build`
-   - **Output Directory**: `frontend/dist`
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
    - **Serverless API**: `api/index.js`
 6. *(Optional)* Under **Environment Variables**, add:
    - `JWT_SECRET`: `your_secure_jwt_secret_key`
