@@ -13,7 +13,7 @@ import {
   Copy,
   Check
 } from 'lucide-react';
-import axios from 'axios';
+import { ticketApi } from '../services/api';
 
 export const Navbar = () => {
   const { user, logout, isAgent } = useAuth();
@@ -27,7 +27,7 @@ export const Navbar = () => {
     setLoadingQuery(true);
     setShowQueryDemo(true);
     try {
-      const res = await axios.get('/api/example-query');
+      const res = await ticketApi.getExampleQuery();
       setQueryData(res.data);
     } catch (err) {
       console.error(err);
