@@ -66,7 +66,11 @@ async function register(req, res) {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    return res.status(500).json({ success: false, message: 'Internal server error during registration.' });
+    return res.status(500).json({
+      success: false,
+      message: error.message ? `Registration failed: ${error.message}` : 'Internal server error during registration.',
+      details: error.message
+    });
   }
 }
 
@@ -118,7 +122,11 @@ async function login(req, res) {
     });
   } catch (error) {
     console.error('Login error:', error);
-    return res.status(500).json({ success: false, message: 'Internal server error during login.' });
+    return res.status(500).json({
+      success: false,
+      message: error.message ? `Login failed: ${error.message}` : 'Internal server error during login.',
+      details: error.message
+    });
   }
 }
 

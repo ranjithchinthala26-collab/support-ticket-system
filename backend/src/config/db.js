@@ -15,11 +15,46 @@ const useMockOrTest = process.env.NODE_ENV === 'test' || process.env.USE_SQLITE 
 
 async function initSqliteEngine() {
   if (sqliteDb) return sqliteDb;
-  const SQL = await initSqlJs();
+
+  let wasmBinary = null;
+  let wasmPathUsed = null;
+
+  const candidateWasmPaths = [
+    path.join(__dirname, 'sql-wasm.wasm'),
+    path.join(process.cwd(), 'api', 'sql-wasm.wasm'),
+    path.join(process.cwd(), 'backend', 'src', 'config', 'sql-wasm.wasm'),
+    path.join(__dirname, '../../../api/sql-wasm.wasm'),
+    path.join(__dirname, '../../api/sql-wasm.wasm')
+  ];
+
+  try {
+    const pkgPath = path.join(path.dirname(require.resolve('sql.js')), 'sql-wasm.wasm');
+    candidateWasmPaths.push(pkgPath);
+  } catch (e) {}
+
+  for (const p of candidateWasmPaths) {
+    try {
+      if (fs.existsSync(p)) {
+        wasmBinary = fs.readFileSync(p);
+        wasmPathUsed = p;
+        break;
+      }
+    } catch (e) {}
+  }
+
+  const options = {};
+  if (wasmBinary) {
+    options.wasmBinary = wasmBinary;
+  }
+  if (wasmPathUsed) {
+    options.locateFile = () => wasmPathUsed;
+  }
+
+  const SQL = await initSqlJs(options);
   sqliteDb = new SQL.Database();
   isUsingSqlite = true;
 
-  // Initialize tables in SQLite for test/standalone mode
+  // Initialize tables in SQLite for test/standalone/serverless mode
   sqliteDb.run(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,7 +90,60 @@ async function initSqliteEngine() {
     );
   `);
 
+  console.log('[Database] SQLite embedded engine initialized successfully.');
   return sqliteDb;
+}
+
+async function initMySqlSchema(mysqlPool) {
+  try {
+    await mysqlPool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        email VARCHAR(191) NOT NULL UNIQUE,
+        password_hash VARCHAR(255) NOT NULL,
+        role ENUM('customer', 'agent') NOT NULL DEFAULT 'customer',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_users_email (email),
+        INDEX idx_users_role (role)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await mysqlPool.query(`
+      CREATE TABLE IF NOT EXISTS tickets (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        subject VARCHAR(255) NOT NULL,
+        description TEXT NOT NULL,
+        priority ENUM('low', 'medium', 'high', 'urgent') NOT NULL DEFAULT 'medium',
+        status ENUM('open', 'in_progress', 'resolved', 'closed') NOT NULL DEFAULT 'open',
+        assigned_to INT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_tickets_user_id (user_id),
+        INDEX idx_tickets_assigned_to (assigned_to),
+        INDEX idx_tickets_status (status),
+        INDEX idx_tickets_priority (priority),
+        INDEX idx_tickets_created_at (created_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await mysqlPool.query(`
+      CREATE TABLE IF NOT EXISTS ticket_comments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        ticket_id INT NOT NULL,
+        user_id INT NOT NULL,
+        comment TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_comments_ticket_id (ticket_id),
+        INDEX idx_comments_user_id (user_id),
+        INDEX idx_comments_created_at (created_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+    console.log('[Database] MySQL tables verified/created successfully.');
+  } catch (schemaErr) {
+    console.warn('[Database] Schema auto-creation note:', schemaErr.message);
+  }
 }
 
 async function getPool() {
@@ -66,12 +154,24 @@ async function getPool() {
 
   if (pool) return pool;
 
+  const hasRemoteDb = Boolean(
+    process.env.DATABASE_URL ||
+    (process.env.DB_HOST && process.env.DB_HOST !== 'localhost' && process.env.DB_HOST !== '127.0.0.1')
+  );
+
+  // If deployed on Vercel and no external MySQL DB is configured, don't wait for localhost timeout
+  if (process.env.VERCEL && !hasRemoteDb) {
+    console.log('[Database] Running on Vercel without remote MySQL host configured. Defaulting to embedded SQLite engine.');
+    await initSqliteEngine();
+    return null;
+  }
+
   try {
     const poolConfig = {
       waitForConnections: true,
       connectionLimit: 5,
       queueLimit: 0,
-      connectTimeout: 10000
+      connectTimeout: 5000
     };
 
     if (process.env.DATABASE_URL) {
@@ -100,6 +200,7 @@ async function getPool() {
     const connection = await pool.getConnection();
     connection.release();
     console.log(`[Database] Connected successfully to MySQL (${process.env.DB_HOST || 'remote'})`);
+    await initMySqlSchema(pool);
     return pool;
   } catch (err) {
     console.warn(`[Database] MySQL connection failed (${err.message}). Falling back to embedded SQLite mode.`);
