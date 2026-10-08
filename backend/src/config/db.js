@@ -21,6 +21,7 @@ async function initSqliteEngine() {
 
   const candidateWasmPaths = [
     path.join(__dirname, 'sql-wasm.wasm'),
+    path.join(process.cwd(), 'sql-wasm.wasm'),
     path.join(process.cwd(), 'api', 'sql-wasm.wasm'),
     path.join(process.cwd(), 'backend', 'src', 'config', 'sql-wasm.wasm'),
     path.join(__dirname, '../../../api/sql-wasm.wasm'),

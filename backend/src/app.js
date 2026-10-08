@@ -17,22 +17,17 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// API Health Check
-app.get('/api/health', (req, res) => {
+// Health Check Handlers
+const healthHandler = (req, res) => {
   res.status(200).json({
     status: 'ok',
     service: 'Support Ticket Management System API',
     timestamp: new Date().toISOString(),
     databaseMode: db.isSqlite() ? 'embedded-sqlite' : 'mysql'
   });
-});
+};
 
-/**
- * Requirement 8: Example Database Query Endpoint
- * "Write a query that returns all open tickets along with the customer's name and email.
- * The query should demonstrate use of a JOIN and filtering."
- */
-app.get('/api/example-query', async (req, res) => {
+const exampleQueryHandler = async (req, res) => {
   try {
     const sql = `
       SELECT 
@@ -63,12 +58,23 @@ app.get('/api/example-query', async (req, res) => {
     console.error('Error running requirement 8 query:', error);
     res.status(500).json({ success: false, message: 'Failed to execute query.' });
   }
-});
+};
 
-// Mount API Routes
+app.get('/api/health', healthHandler);
+app.get('/health', healthHandler);
+
+app.get('/api/example-query', exampleQueryHandler);
+app.get('/example-query', exampleQueryHandler);
+
+// Mount API Routes (support both /api/* and root /* for serverless rewrites)
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+
 app.use('/api/tickets', ticketRoutes);
+app.use('/tickets', ticketRoutes);
+
 app.use('/api/users', userRoutes);
+app.use('/users', userRoutes);
 
 // Serve Static Frontend if built
 const frontendDist = path.join(__dirname, '../../frontend/dist');

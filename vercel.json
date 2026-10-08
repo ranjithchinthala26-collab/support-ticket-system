@@ -5,6 +5,7 @@
   "functions": {
     "api/index.js": {
       "includeFiles": [
+        "sql-wasm.wasm",
         "api/sql-wasm.wasm",
         "backend/src/config/sql-wasm.wasm"
       ]
