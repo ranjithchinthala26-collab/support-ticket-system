@@ -4,7 +4,10 @@
   "outputDirectory": "frontend/dist",
   "functions": {
     "api/index.js": {
-      "includeFiles": "{api/**,backend/**,node_modules/sql.js/dist/**}"
+      "includeFiles": [
+        "api/sql-wasm.wasm",
+        "backend/src/config/sql-wasm.wasm"
+      ]
     }
   },
   "rewrites": [
