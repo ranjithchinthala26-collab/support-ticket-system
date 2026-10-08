@@ -25,7 +25,8 @@
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.0",
-    "sql.js": "^1.11.0"
+    "sql.js": "^1.11.0",
+    "support-ticket-system": "file:.."
   },
   "devDependencies": {
     "jest": "^29.7.0",
