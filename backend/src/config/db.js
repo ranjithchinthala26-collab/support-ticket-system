@@ -67,22 +67,39 @@ async function getPool() {
   if (pool) return pool;
 
   try {
-    pool = mysql.createPool({
-      host: process.env.DB_HOST || 'localhost',
-      port: Number(process.env.DB_PORT) || 3306,
-      user: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD || '',
-      database: process.env.DB_NAME || 'support_ticket_db',
+    const poolConfig = {
       waitForConnections: true,
-      connectionLimit: 10,
+      connectionLimit: 5,
       queueLimit: 0,
-      connectTimeout: 5000
-    });
+      connectTimeout: 10000
+    };
+
+    if (process.env.DATABASE_URL) {
+      const useSsl = process.env.DB_SSL !== 'false';
+      pool = mysql.createPool({
+        uri: process.env.DATABASE_URL,
+        ssl: useSsl ? { rejectUnauthorized: false } : undefined,
+        ...poolConfig
+      });
+    } else {
+      const isRemote = process.env.DB_HOST && process.env.DB_HOST !== 'localhost' && process.env.DB_HOST !== '127.0.0.1';
+      const useSsl = process.env.DB_SSL === 'true' || (isRemote && process.env.DB_SSL !== 'false');
+
+      pool = mysql.createPool({
+        host: process.env.DB_HOST || 'localhost',
+        port: Number(process.env.DB_PORT) || 3306,
+        user: process.env.DB_USER || 'root',
+        password: process.env.DB_PASSWORD || '',
+        database: process.env.DB_NAME || 'support_ticket_db',
+        ssl: useSsl ? { rejectUnauthorized: false } : undefined,
+        ...poolConfig
+      });
+    }
 
     // Test connection
     const connection = await pool.getConnection();
     connection.release();
-    console.log(`[Database] Connected successfully to MySQL (${process.env.DB_HOST || 'localhost'})`);
+    console.log(`[Database] Connected successfully to MySQL (${process.env.DB_HOST || 'remote'})`);
     return pool;
   } catch (err) {
     console.warn(`[Database] MySQL connection failed (${err.message}). Falling back to embedded SQLite mode.`);

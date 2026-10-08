@@ -339,33 +339,56 @@ docker-compose up --build
 
 ---
 
-## ☁️ Cloud Deployment Guide
+### 1. Full-Stack Vercel Deployment (Recommended ⭐)
 
-The application is structured for instant zero-downtime deployment across popular free/low-cost cloud platforms:
+The project includes built-in Vercel Serverless routing via `vercel.json` and `api/index.js`, allowing the frontend and backend to run together on a **single unified Vercel URL** without CORS configuration.
 
-### 1. Database Deployment (Free Managed MySQL)
-- Create a free MySQL database on **Railway**, **Aiven**, or **PlanetScale**.
-- Run the queries from `database/schema.sql` and `database/seed.sql` using your database provider's web console.
-- Note the connection details (`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`).
+#### Option A: Deploy via GitHub (1-Click)
+1. Push your repository to GitHub:
+   ```bash
+   git add .
+   git commit -m "feat: configure full-stack Vercel deployment"
+   git push origin main
+   ```
+2. Log in to [Vercel Dashboard](https://vercel.com) and click **"Add New..." > "Project"**.
+3. Import your GitHub repository (`support-ticket-system`).
+4. Keep the **Root Directory** as `./` (do not change it).
+5. Vercel automatically detects `vercel.json` with:
+   - **Build Command**: `npm --prefix frontend run build`
+   - **Output Directory**: `frontend/dist`
+   - **Serverless API**: `api/index.js`
+6. *(Optional)* Under **Environment Variables**, add:
+   - `JWT_SECRET`: `your_secure_jwt_secret_key`
+   - *(Optional Cloud MySQL)*: `DATABASE_URL` or `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`
+   *(If not provided, the serverless function automatically runs with the embedded database and sample seeds)*
+7. Click **Deploy**. Your full-stack application will be live at `https://<your-project>.vercel.app`!
 
-### 2. Backend Deployment (Render or Railway)
-- Deploy the `backend/` folder as a Node.js web service on **Render** (https://render.com) or **Railway** (https://railway.app).
-- Set the Build Command: `npm install`
-- Set the Start Command: `npm start`
-- Configure Environment Variables:
-  - `PORT`: `5000`
-  - `NODE_ENV`: `production`
-  - `JWT_SECRET`: `<your-random-32-char-secret>`
-  - `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` (from Step 1)
-- Copy your deployed backend URL (e.g. `https://support-ticket-api.onrender.com`).
+#### Option B: Deploy via Vercel CLI
+Run the following in your terminal from the project root:
+```bash
+npx vercel
+```
+- Select your scope and confirm project settings (defaults automatically load from `vercel.json`).
+- To deploy to production:
+```bash
+npx vercel --prod
+```
 
-### 3. Frontend Deployment (Vercel or Netlify)
-- Deploy the `frontend/` folder to **Vercel** (https://vercel.com) or **Netlify** (https://netlify.com).
-- Framework Preset: **Vite**
-- Build Command: `npm run build`
-- Output Directory: `dist`
-- Configure Environment Variable:
-  - `VITE_API_URL`: `https://support-ticket-api.onrender.com/api` (points to your deployed backend from Step 2).
+---
+
+### 2. Database Options for Vercel
+- **Zero-Setup Embedded Mode (Instant)**: The application automatically boots with pre-seeded demo accounts and sample tickets on serverless cold starts.
+- **Cloud MySQL (Persistent)**: Connect to any free Cloud MySQL provider by setting environment variables in Vercel:
+  - **TiDB Cloud** (Free Serverless MySQL): `DATABASE_URL=mysql://...`
+  - **Aiven for MySQL** (Free tier): `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_PORT`, `DB_NAME`
+  - **Railway MySQL** / **Clever Cloud**: Connection URL or credentials.
+
+---
+
+### 3. Alternative: Multi-Service Cloud Deployment (Render + Netlify/Vercel)
+- **Database**: Cloud MySQL on Railway, Aiven, or PlanetScale.
+- **Backend**: Deploy `backend/` to Render as a Node Web Service (`npm start`).
+- **Frontend**: Deploy `frontend/` to Vercel/Netlify with `VITE_API_URL` pointing to backend.
 
 ---
 
