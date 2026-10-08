@@ -7,8 +7,8 @@
     "backend"
   ],
   "scripts": {
-    "build": "npm --prefix frontend run build",
-    "build:frontend": "npm --prefix frontend run build",
+    "build": "npm --prefix frontend run build && node -e \"const fs=require('fs'); fs.cpSync('frontend/dist', 'dist', {recursive: true});\"",
+    "build:frontend": "npm --prefix frontend run build && node -e \"const fs=require('fs'); fs.cpSync('frontend/dist', 'dist', {recursive: true});\"",
     "test": "npm --prefix backend test",
     "seed": "npm --prefix backend run seed",
     "backend": "npm --prefix backend start",
